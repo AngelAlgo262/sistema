@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EmpleadosController;
+use Illuminate\Support\Facades\Auth;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -13,17 +14,27 @@ use App\Http\Controllers\EmpleadosController;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+Route::get('/', function () { 
+    return view('auth.login');
 });
 
-//Accediendo directamente a vista
+/* //Accediendo directamente a vista
 Route::get('/empleado', function (){
     return view('empleado.index');
 });
+ */
 
-//Accediendo a vista desde controlador
-//método por método
-/* Route::get('/empleados/create',[EmpleadosController::class, 'create']); */
-//Todos los métodos del controlador
-Route::resource('empleado', EmpleadosController::class);
+/* Route::get('/empleados/create',[EmpleadosController::class, 'create']); //Accediendo a vista desde controlador método por método*/
+
+
+
+Route::resource('empleado', EmpleadosController::class)->middleware('auth'); //Todos los métodos del controlador
+Auth::routes(['register' => false, 'reset' => false]); //ocultar enlaces de autenticación, registro y recuperar contraseña
+
+
+Route::get('/home', [EmpleadosController::class, 'index'])->name('home');//al escribir /home llevara al controlador de empleados en el index
+
+Route::group(['middleware' => 'auth'], function (){ //crea y protege 
+    Route::get('/', [EmpleadosController::class, 'index']) ->name('home'); //a estas rutas
+});
+
